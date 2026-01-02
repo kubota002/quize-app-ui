@@ -1,5 +1,21 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ResultDialog } from "./ResultDialog";
+import { useNavigate } from "react-router-dom";
+
+type QuestionResult = {
+    id: string;
+    title: string;
+    selectedText: string;
+    correctText: string;
+    isCorrect: boolean;
+    explanation: string;
+}
+export type ResultState = {
+    total: number;
+    correctCount: number;
+    results: QuestionResult[];
+}
 
 export type Question = {
   id: string;
@@ -15,18 +31,36 @@ type MultipleChoiceQuestionType = {
 
 export const MultipleChoiceQuestion = (props: MultipleChoiceQuestionType) => {
     const { questions } = props;
+    const navigate = useNavigate();
     const [index, setIndex] = useState<number>(0);
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);   // 正解
+    const [results, setResults] = useState<QuestionResult[]>([]);   // 結果
 
     const q = questions[index];
     const progress = useMemo(
-    () => Math.round(((index + 1) / questions.length) * 100),
-    [index]
+        () => Math.round(((index + 1) / questions.length) * 100),
+        [index]
     );
 
     const onSelect = (choiceId: number) => {
         if (selectedId) return;
+
+        const choice = q.choices.find(c => c.id === choiceId)!;
+        const correct = q.choices.find(c => c.id === q.answerId)!;
+
+        setResults(prev => [
+            ...prev,
+            {
+                id: q.id,
+                title: q.title,
+                selectedText: choice.text,
+                correctText: correct.text,
+                isCorrect: choiceId === q.answerId,
+                explanation: q.explanation,
+            },
+        ]);
+
         setSelectedId(choiceId);
         setIsCorrect(choiceId === q.answerId);
     };
@@ -37,11 +71,30 @@ export const MultipleChoiceQuestion = (props: MultipleChoiceQuestionType) => {
     setIndex((v) => Math.min(v + 1, questions.length - 1));
     };
 
+    const onFinish = () => {
+        const result: ResultState = {
+            total: questions.length,
+            correctCount: results.filter(r => r.isCorrect).length,
+            results,
+        }
+        navigate("/result", {
+            state: result,
+        });
+    }
+
     const isLast = index === questions.length - 1;
 
     return(
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="w-full max-w-xl">
+            <ResultDialog
+                open={isCorrect !== null}
+                isCorrect={!!isCorrect}
+                isLast={isLast}
+                explanation={q.explanation}
+                onNext={onNext}
+                onFinish={onFinish}
+            />
             <div className="mb-4 flex items-center justify-between">
             <div className="text-sm text-slate-600">
                 {index + 1} / {questions.length}
@@ -105,13 +158,7 @@ export const MultipleChoiceQuestion = (props: MultipleChoiceQuestionType) => {
 
                 <div className="mt-5 flex items-center justify-between">
                 <div className="text-sm">
-                    {isCorrect === null ? (
                     <span className="text-slate-500">選択してください</span>
-                    ) : isCorrect ? (
-                    <span className="text-emerald-700 font-medium">正解！</span>
-                    ) : (
-                    <span className="text-rose-700 font-medium">不正解…</span>
-                    )}
                 </div>
 
                 <button
