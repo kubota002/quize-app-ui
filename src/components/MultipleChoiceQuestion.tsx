@@ -39,7 +39,7 @@ export const MultipleChoiceQuestion = (props: MultipleChoiceQuestionType) => {
 
     const q = questions[index];
     const progress = useMemo(
-        () => Math.round(((index + 1) / questions.length) * 100),
+        () => Math.round(((index) / questions.length) * 100),
         [index]
     );
 
