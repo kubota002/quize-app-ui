@@ -120,7 +120,7 @@ export const MultipleChoiceQuestion = (props: MultipleChoiceQuestionType) => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
             >
-                <h1 className="text-xl font-bold text-slate-900 mb-4">{q.title}</h1>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">{q.title}</h2>
 
                 <div className="grid gap-3">
                 {q.choices.map((c) => {
