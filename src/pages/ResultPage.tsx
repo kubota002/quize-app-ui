@@ -59,10 +59,10 @@ export const ResultPage = () => {
         {/* 再挑戦 */}
         <div className="mt-8 text-center">
           <button
-            className="px-6 py-3 rounded-xl bg-slate-900 text-white"
+            className="px-6 py-3 rounded-xl bg-slate-900 text-slate-700"
             onClick={() => navigate("/")}
           >
-            もう一度挑戦
+            ホームに戻る
           </button>
         </div>
       </div>
